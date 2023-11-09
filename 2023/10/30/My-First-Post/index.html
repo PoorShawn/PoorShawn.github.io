@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  viewport-fit=cover" name="viewport" />
+    <meta name="description" content="JWT的基础使用" />
+    <meta name="hexo-theme-A4" content="v1.7.2" />
+    <link rel="alternate icon" type="image/webp" href="/img/favicon.webp">
+    <title>Butterfly</title>
+
+    
+        
+<link rel="stylesheet" href="/css/reset.css">
+
+        
+<link rel="stylesheet" href="/css/markdown.css">
+
+        
+<link rel="stylesheet" href="/css/fonts.css">
+ 
+         <!--注意：首页既不是post也不是page-->
+        
+            
+<link rel="stylesheet" href="/css/waline.css">
+
+        
+    
+    
+<link rel="stylesheet" href="/css/ui.css">
+ 
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+    
+    <body>
+        <div class="paper">
+            
+            
+            
+            
+                <div class="shadow-drop-2-bottom paper-main">
+                    
+<div class="header">
+    <div class="header-container">
+        <img style="
+        width: 56px;
+        height: auto;" alt="^-^" cache-control="max-age=86400" class="header-img" src="/img/favicon.webp" width="10%"></img>
+        <div class="header-content">
+            <a class="logo" href="/">Butterfly</a> 
+            <span class="description"></span> 
+        </div>
+        
+    </div>
+    
+   
+    <ul class="nav">
+        
+            
+                <li><a href="/">首页</a></li>
+            
+        
+            
+                <li><a href="/list/">文章</a></li>
+            
+        
+            
+                <li><a href="/about/">关于</a></li>
+            
+        
+            
+                <li><a href="/tags/">标签</a></li>
+            
+        
+            
+                <li><a href="/categories/">分类</a></li>
+            
+        
+    </ul>
+</div> 
+        
+                    
+                    
+
+                    
+                    
+                    
+                    <!--说明是文章post页面-->
+                    
+                        <div class="post-main">
+
+    
+        <div class="post-main-title">
+            JWT的基础使用
+        </div>
+      
+    
+
+    <div class="post-md">
+        
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="post-toc-text">写在前面</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJWT"><span class="post-toc-text">什么是JWT</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#JWT%E7%9A%84%E7%BB%93%E6%9E%84"><span class="post-toc-text">JWT的结构</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#JWT%E4%BD%BF%E7%94%A8%E5%8C%85%E7%9A%84%E5%AF%BC%E5%85%A5"><span class="post-toc-text">JWT使用包的导入</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#token%E7%9A%84%E7%94%9F%E6%88%90"><span class="post-toc-text">token的生成</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#token%E7%9A%84%E8%A7%A3%E6%9E%90%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="post-toc-text">token的解析与验证</span></a>
+        
+        <h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>项目的具体开发，总是会有许许多多的问题暴露出来。今天来学习JWT的基础使用。</p>
+<h1 id="什么是JWT"><a href="#什么是JWT" class="headerlink" title="什么是JWT"></a>什么是JWT</h1><p>在介绍JWT之前，我们先来了解一下什么是<strong>JSON</strong>。简单来说<strong>JSON</strong>是一种<strong>文本格式</strong>，但是它可以完全独立于编程语言来存储和表示数据。</p>
+<p><strong>JWT</strong>的英文全称是<strong>JSON Web Token</strong>，它可以让我们在用户与服务器之间传递<strong>安全可靠</strong>的JSON文本信息。具体来说，用户注册时，<strong>服务端</strong>会接收到来自用户在用户端输入的账号和密码，然后向<strong>客户端</strong>发送JWT。由此<strong>客户端</strong>有了JWT这个令牌。当下次<strong>客户端</strong>再向服务端请求数据时，只要利用这个令牌，就可以轻松地访问客户端的数据。这种信息传输方式有<strong>开销少</strong>、<strong>传输安全</strong>等优点。</p>
+<h1 id="JWT的结构"><a href="#JWT的结构" class="headerlink" title="JWT的结构"></a>JWT的结构</h1><p><strong>JWT</strong>由三部分组成：</p>
+<ul>
+<li>Header</li>
+<li>Payload，声明</li>
+<li>Signature，签名</li>
+</ul>
+<p><strong>Header</strong>由token的类型（”JWT”）和签名算法名称（比如HMAC-SHA256）组成；</p>
+<p><strong>Payload</strong>包含着关于用户数据的各种声明；</p>
+<p><strong>Signature</strong>就是密钥，用于验证消息在传递过程中有没有被更改，从而确保信息传输的安全。</p>
+<h1 id="JWT使用包的导入"><a href="#JWT使用包的导入" class="headerlink" title="JWT使用包的导入"></a>JWT使用包的导入</h1><ul>
+<li><code>github.com/dgrijalva/jwt-go</code></li>
+<li><code>github.com/gin-gonic/gin</code></li>
+</ul>
+<h1 id="token的生成"><a href="#token的生成" class="headerlink" title="token的生成"></a>token的生成</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyClaims <span class="keyword">struct</span> &#123;</span><br><span class="line">   Username <span class="type">string</span> <span class="string">`json:&quot;username&quot;`</span></span><br><span class="line">   jwt.StandardClaims</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> TokenExpireDuration = time.Hour * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> MySecret = []<span class="type">byte</span>(<span class="string">&quot;MySecretKey&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GenToken</span><span class="params">(username <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">   c := MyClaims&#123;</span><br><span class="line">username,</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">jwt.StandardClaims&#123;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Issuer:    &quot;my-project&quot;,</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line">   &#125;</span><br><span class="line">   // 使用指定的签名方法（HS256）创建带有声明的新令牌。</span><br><span class="line">   token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)</span><br><span class="line"></span><br><span class="line">   // 使用秘密密钥签名令牌并获取编码后的字符串令牌。</span><br><span class="line">   return token.SignedString(MySecret)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在上面的 <code>GenToken</code> 函数中，将用户名作为参数传递，以生成一个包含指定声明的JWT。这个JWT可用于应用程序中的身份验证和授权，它将从生成时起的2小时内有效。下面是具体说明：</p>
+<p><strong>1.MyClaims 结构体</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyClaims <span class="keyword">struct</span> &#123;</span><br><span class="line"></span><br><span class="line">   Username <span class="type">string</span> <span class="string">`json:&quot;username&quot;`</span></span><br><span class="line"></span><br><span class="line">   jwt.StandardClaims</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>MyClaims</code>是一个自定义结构体，用于定义将包含在JWT中的声明</li>
+<li>它嵌入了 <code>jwt.StandardClaims</code> 结构体，其中包含标准的JWT声明</li>
+<li><code>Username</code> 是一个自定义声明，将添加到JWT中，并使用 <code>json:&quot;username&quot;</code> 标签指定了如何将其编组为JSON</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>2.TokenExpireDuration 常量</strong></p>
+<p><code>const TokenExpireDuration = time.Hour * 2</code></p>
+<ul>
+<li>此常量定义了生成的JWT有效的持续时间。在这种情况下，它设置为2小时</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>3.MySecret</strong></p>
+<p><code>var MySecret = []byte(&quot;这是一段用于生成token的密钥&quot;)</code></p>
+<ul>
+<li><code>MySecret</code> 是一个包含秘密密钥的字节切片。该密钥将用于签名JWT，确保其真实性</li>
+</ul>
+<p><strong>4.GenToken 函数</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GenToken</span><span class="params">(username <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line"></span><br><span class="line">   c := MyClaims&#123;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>username,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>jwt.StandardClaims{</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Issuer:    “my-project”,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>},</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)</span><br><span class="line"></span><br><span class="line">   return token.SignedString(MySecret)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>GenToken</code> 是一个用于生成给定 <code>username</code> 的JWT的函数</li>
+<li>创建了一个新的 <code>MyClaims</code> 实例，其中包括提供的 <code>username</code> 并设置嵌入的 <code>StandardClaims</code> 中的 <code>ExpiresAt</code> 和 <code>Issuer</code> 声明</li>
+<li>使用HS256签名方法创建一个新的JWT令牌（<code>token</code>），这是一种广泛使用的HMAC-SHA256签名方法</li>
+<li>使用 <code>MySecret</code> 密钥签名令牌，并将编码后的JWT作为字符串返回</li>
+</ul>
+<h1 id="token的解析与验证"><a href="#token的解析与验证" class="headerlink" title="token的解析与验证"></a>token的解析与验证</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 解析JWT</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseToken</span><span class="params">(tokenString <span class="type">string</span>)</span></span> (*MyClaims, <span class="type">error</span>) &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 解析token</span></span><br><span class="line"></span><br><span class="line">   token, err := jwt.ParseWithClaims(tokenString, &amp;MyClaims&#123;&#125;, <span class="function"><span class="keyword">func</span><span class="params">(token *jwt.Token)</span></span> (i <span class="keyword">interface</span>&#123;&#125;, err <span class="type">error</span>) &#123;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>return MySecret, nil</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">if err != nil &#123;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>return nil, err</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if claims, ok := token.Claims.(*MyClaims); ok &amp;&amp; token.Valid &#123;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>return claims, nil</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   return nil, errors.New(&quot;invalid token&quot;)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>ParseToken</code> 函数的主要用来解析JWT字符串并验证其有效性。如果JWT有效且声明与 <code>MyClaims</code> 类型兼容，它将返回JWT中包含的声明信息。否则，它将返回一个错误，指示JWT无效。这对于验证用户身份和授权非常有用，因为它可以从JWT中提取有关用户的信息。具体分析如下：</p>
+<p><strong>1.ParseToken函数</strong></p>
+<ul>
+<li><code>ParseToken</code> 是一个函数，用于解析传入的JWT字符串 <code>tokenString</code></li>
+</ul>
+<p><strong>2.jwt.ParseClaims</strong></p>
+<ul>
+<li><p><code>jwt.ParseWithClaims</code> 函数是 <code>github.com/dgrijalva/jwt-go</code> 包提供的用于解析JWT的方法</p>
+</li>
+<li><p>它接受三个参数：</p>
+<ul>
+<li><code>tokenString</code>：要解析的JWT字符串</li>
+<li><code>&amp;MyClaims&#123;&#125;</code>：这是一个空的 <code>MyClaims</code> 结构体的实例，用于指定JWT中的声明类型。解析后的声明将被解码到这个结构体中</li>
+<li>一个函数：这个函数接受一个JWT令牌作为参数，并返回用于验证签名的密钥（在这里是 <code>MySecret</code>）和一个错误</li>
+</ul>
+</li>
+</ul>
+<p><strong>3.解析JWT</strong></p>
+<ul>
+<li><code>jwt.ParseWithClaims</code> 尝试解析传入的JWT字符串并验证签名</li>
+<li>如果解析过程中出现错误，它将返回一个错误对象</li>
+<li>如果JWT验证通过，它将返回一个 <code>*jwt.Token</code> 对象，其中包含了JWT的声明信息</li>
+</ul>
+<p><strong>4.检查声明</strong></p>
+<ul>
+<li>接下来，代码检查JWT是否有效，并且声明是否与 <code>MyClaims</code> 类型兼容。</li>
+<li>如果JWT有效且声明与 <code>MyClaims</code> 类型兼容，它将返回声明（<code>*MyClaims</code>）和一个 <code>nil</code> 错误。</li>
+<li>如果JWT无效或声明不兼容，它将返回一个自定义错误，指示JWT无效。</li>
+</ul>
+
+    </div>
+
+    <div class="post-meta">
+        <i>
+        
+            <span>2023-10-30</span>
+            
+                <span>该篇文章被 Gao Tianyu</span>
+            
+            
+                <span>打上标签:
+                    
+                    
+                        <a href='/tags/JWT/'>
+                            JWT
+                        </a>
+                    
+                </span>
+             
+             
+                <span>归为分类:
+                    
+                    
+                        <a href='/categories/Tech/'>
+                            Tech
+                        </a>
+                    
+                </span>
+            
+        
+        </i>
+    </div>
+    
+        
+    <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        以上。 
+    </div>
+    
+        
+
+    <div id="waline"></div>
+    <script type="module"  >
+        import { init } from 'https://npm.elemecdn.com/hexo-theme-a4@latest/source/js/waline.mjs'; 
+        function loadWaline() {
+            init({
+                el: '#waline',
+                serverURL: 'https://wailine-vercel-repository-5n9vwrqcf-poorshawns-projects.vercel.app/',
+                lang: 'zh-CN',
+                dark: 'body[class~="dark-mode"]',
+                requiredMeta: ['nick','mail'], // cannot customize by theme config, change it yourself
+                search: false, // 禁止表情包搜索
+                reaction: false, // 对文章打分
+                pageview: false, // 浏览量统计
+                comment: false, // 评论数统计
+
+                locale: {
+                    placeholder: '正确的邮箱地址，回复将能得到邮件通知。', 
+                    sofa: ''
+                },
+            });
+            
+        }
+        window.addEventListener('DOMContentLoaded', loadWaline);
+    </script>
+
+
+
+    
+    
+    
+    </div>
+
+
+     
+</div>
+
+
+
+                    
+                    
+                    <div class="footer">
+    
+        <span> 
+             
+
+            
+                
+
+            
+        </span>
+    
+</div>
+<!--这是指一条线往下的内容-->
+<div class="footer-last">
+    
+            <span>去吧！在认清生活的真相后去热爱生活!</span>
+            
+                <span class="footer-last-span-right"><i>本站由<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/index.html">Hexo</a>驱动｜使用<a target="_blank" rel="noopener" href="https://github.com/HiNinoJay/hexo-theme-A4">Hexo-theme-A4</a>主题</i></span>
+            
+    
+</div>
+
+
+    
+<link rel="stylesheet" href="/css/a11y-dark.min.css">
+
+    
+<script src="/js/highlight.min.js"></script>
+
+    
+<script src="/js/highlightjs-line-numbers.js"></script>
+
+
+
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+                </div>
+            
+    </body>
+</html>

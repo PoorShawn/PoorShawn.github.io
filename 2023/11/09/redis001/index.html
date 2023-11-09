@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,  viewport-fit=cover" name="viewport" />
+    <meta name="description" content="Redis如何解决大量并发问题（入门）# 标题" />
+    <meta name="hexo-theme-A4" content="v1.7.2" />
+    <link rel="alternate icon" type="image/webp" href="/img/favicon.webp">
+    <title>Butterfly</title>
+
+    
+        
+<link rel="stylesheet" href="/css/reset.css">
+
+        
+<link rel="stylesheet" href="/css/markdown.css">
+
+        
+<link rel="stylesheet" href="/css/fonts.css">
+ 
+         <!--注意：首页既不是post也不是page-->
+        
+            
+<link rel="stylesheet" href="/css/waline.css">
+
+        
+    
+    
+<link rel="stylesheet" href="/css/ui.css">
+ 
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+    
+    <body>
+        <div class="paper">
+            
+            
+            
+            
+                <div class="shadow-drop-2-bottom paper-main">
+                    
+<div class="header">
+    <div class="header-container">
+        <img style="
+        width: 56px;
+        height: auto;" alt="^-^" cache-control="max-age=86400" class="header-img" src="/img/favicon.webp" width="10%"></img>
+        <div class="header-content">
+            <a class="logo" href="/">Butterfly</a> 
+            <span class="description"></span> 
+        </div>
+        
+    </div>
+    
+   
+    <ul class="nav">
+        
+            
+                <li><a href="/">首页</a></li>
+            
+        
+            
+                <li><a href="/list/">文章</a></li>
+            
+        
+            
+                <li><a href="/about/">关于</a></li>
+            
+        
+            
+                <li><a href="/tags/">标签</a></li>
+            
+        
+            
+                <li><a href="/categories/">分类</a></li>
+            
+        
+    </ul>
+</div> 
+        
+                    
+                    
+
+                    
+                    
+                    
+                    <!--说明是文章post页面-->
+                    
+                        <div class="post-main">
+
+    
+        <div class="post-main-title">
+            Redis如何解决大量并发问题（入门）# 标题
+        </div>
+      
+    
+
+    <div class="post-md">
+        
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Redis%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="post-toc-text">Redis是什么？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Redis%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="post-toc-text">Redis的使用解决了什么问题？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Redis%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%B1%BB%E4%BC%BC%E4%BA%8E%E4%B8%8A%E9%9D%A2%E7%9A%84%E5%A4%A7%E9%87%8F%E5%B9%B6%E5%8F%91%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="post-toc-text">Redis是如何处理类似于上面的大量并发的问题？</span></a></li></ol>
+        
+        <h3 id="Redis是什么？"><a href="#Redis是什么？" class="headerlink" title="Redis是什么？"></a>Redis是什么？</h3><p>Redis(Remote Dictionary Server),是一种开源内存中的数据结构存储，可以理解其为一种<strong>非关系型的缓存数据库</strong>，它以键值（key-value）的方式在<strong>内存中</strong>存储数据。</p>
+<h3 id="Redis的使用解决了什么问题？"><a href="#Redis的使用解决了什么问题？" class="headerlink" title="Redis的使用解决了什么问题？"></a>Redis的使用解决了什么问题？</h3><p>一句话，对于数据库<strong>大量并发的访问</strong>引发的问题。在类似于选课、抢火车票等<strong>大量并发</strong>的情境下，如果所有访问的请求<strong>都直接访问</strong>MySQL数据库，数据库会出现访问异常，出现脏读。换言之，MySQL数据库无法满足<strong>短时间内</strong>程序对已存储数据的<strong>大量快速的访问</strong>。   </p>
+<blockquote>
+<p>举个选课的简单例子</p>
+</blockquote>
+<p>在<strong>选课</strong>的时候，学生一般选课的过程是：<br>（1）查询课程已选人数是否已达到最多人数限制–&gt;<br>（2）修改课程已选人数–&gt;<br>（3）把修改的数据更新到数据库</p>
+<p>如果课程<strong>可选的剩余人数</strong>只有<strong>一人</strong>，而且有两个学生<strong>同时执行</strong>上面的事务，在<strong>并行系统</strong>中，很有可能出现以下情况：<br>（1）第一个学生查询到课程已选人数未满–&gt;<br>（2）第二个学生查询到课程已选人数未满–&gt;<br>（3）第一个学生修改课程已选人数–&gt;<br>（4）第二个学生修改课程已选人数–&gt;<br>（5）第一个学生把已修改的数据更新到数据库–&gt;<br>（6）第二个学生把已修改的数据更新到数据库    </p>
+<p>可以看到，在这个人数已选余量只有一的情况下，两个学生<strong>都可以</strong>选到自己心仪的课程。显然，这扰乱了课程选择的正常秩序，这应该是教务处不想看到的局面。</p>
+<h3 id="Redis是如何处理类似于上面的大量并发的问题？"><a href="#Redis是如何处理类似于上面的大量并发的问题？" class="headerlink" title="Redis是如何处理类似于上面的大量并发的问题？"></a>Redis是如何处理类似于上面的大量并发的问题？</h3><blockquote>
+<p>由于其直接访问内存中的数据，因此把Redis充当程序<strong>访问数据库的中间件</strong>，从而提高效率和缓解数据库服务器的压力。    </p>
+</blockquote>
+<p>简单来讲，Redis<strong>首先</strong>把MySQL数据库中会被大量访问的数据<strong>存储在内存中</strong>。当客户端发送访问数据的请求时，程序就<strong>直接访问</strong>Redis存储在<strong>内存中的数据</strong>。然后Redis再把相关数据<strong>更新</strong>到MySQL数据库中。     </p>
+<p>Redis采用了一些关键的技术来确保技术的高性能和可靠性，笔者认为主要有以下几点：   </p>
+<ul>
+<li>采用<strong>单线程模型</strong></li>
+</ul>
+<blockquote>
+<p>何为单线程模型？</p>
+</blockquote>
+<p>它只使用一个CPU来处理所有请求。    </p>
+<blockquote>
+<p>为什么可以如此设计？</p>
+</blockquote>
+<p>因为Redis主要用于缓存和内存数据存储，<strong>内存的读写速度非常快</strong>。在这种情况下，CPU的计算速度往往可以满足处理请求的需求，不需要多线程的并行计算。     </p>
+<blockquote>
+<p>单线程模型有何用？</p>
+</blockquote>
+<p>由于Redis不需要考虑多线程之间的同步、锁、竞争等问题，也不需要花费时间和资源在多线程之间的上下文切换上，使得Redis的设计和实现更简单，性能和效率更高。</p>
+<ul>
+<li>支持<strong>多种原子操作</strong></li>
+</ul>
+<blockquote>
+<p>何为原子操作？</p>
+</blockquote>
+<p>将多个命令打包在一起，并确保它们在执行时<strong>要么全部成功，要么全部失败</strong>。<br>Redis把多个命令打包在一起，将其视为<strong>整个事务</strong>。如果在执行事务期间出现错误（例如语法错误或事务中的某个命令失败），则<strong>整个事务</strong>将回滚，不会影响数据。如果所有命令都成功执行，则事务将提交，将所有更改应用到数据。因此，Redis可以通过原子化操作，来<strong>确保数据的完整性</strong>。</p>
+<blockquote>
+<p>举个在Redis中执行一个银行转账的例子：</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MULTI</span><br><span class="line">SET account1_balance 1000</span><br><span class="line">SET account2_balance 500</span><br><span class="line">DECRBY account1_balance 200</span><br><span class="line">INCRBY account2_balance 200</span><br><span class="line">EXEC</span><br></pre></td></tr></table></figure>
+<p>在这个示例中，我们使用<code>MULTI</code>开始事务，并依次执行了四个命令。如果在执行事务期间任何一步出现问题，例如第三个命令由于余额不足而失败，整个事务将回滚，不会应用任何更改。只有当所有命令都成功执行时，事务才会提交。</p>
+<ul>
+<li>支持乐观锁<strong>加锁</strong></li>
+</ul>
+<blockquote>
+<p>何为乐观锁？</p>
+</blockquote>
+<p>简单来讲，乐观锁是一种用于处理<strong>并发访问共享数据</strong>的机制，它的核心思想是：在<strong>读取数据</strong>时不加锁，但在<strong>更新数据</strong>之前，会检查是否有其他线程或进程已经修改了数据。如果检测到其他修改，就会<strong>阻止</strong>当前操作，以避免数据不一致性。    </p>
+<blockquote>
+<p>如何检查是否有其他线程或进程已经修改了数据？</p>
+</blockquote>
+<p>当一个线程想要读取共享数据时，它会获取数据的当前版本号，并将其存储在本地。然后当其想要修改共享数据，并尝试把修改后的数据写回时，线程会检查当前数据的版本号是否仍然与它在读取时存储的版本号相同。如果相同，说明在此线程读取数据后没有其他线程修改过它，那么写操作将成功，版本号会更新。但如果版本号不同，说明在读取数据后有其他线程修改了它，那么写操作将失败。</p>
+<blockquote>
+<p>为何要用乐观锁加锁？</p>
+</blockquote>
+<p>通过版本控制来处理并发访问的机制，它允许多个线程或进程在不加锁的情况下读取数据，但在写操作时会检查数据是否被其他线程修改，从而保证数据的一致性和可靠性。</p>
+
+    </div>
+
+    <div class="post-meta">
+        <i>
+        
+            <span>2023-11-09</span>
+            
+                <span>该篇文章被 Gao Tianyu</span>
+            
+            
+                <span>打上标签:
+                    
+                    
+                        <a href='/tags/Redis/'>
+                            Redis
+                        </a>
+                    
+                </span>
+             
+             
+                <span>归为分类:
+                    
+                    
+                        <a href='/categories/Tech/'>
+                            Tech
+                        </a>
+                    
+                </span>
+            
+        
+        </i>
+    </div>
+    
+        
+    <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        以上。 
+    </div>
+    
+        
+
+    <div id="waline"></div>
+    <script type="module"  >
+        import { init } from 'https://npm.elemecdn.com/hexo-theme-a4@latest/source/js/waline.mjs'; 
+        function loadWaline() {
+            init({
+                el: '#waline',
+                serverURL: 'https://wailine-vercel-repository-5n9vwrqcf-poorshawns-projects.vercel.app/',
+                lang: 'zh-CN',
+                dark: 'body[class~="dark-mode"]',
+                requiredMeta: ['nick','mail'], // cannot customize by theme config, change it yourself
+                search: false, // 禁止表情包搜索
+                reaction: false, // 对文章打分
+                pageview: false, // 浏览量统计
+                comment: false, // 评论数统计
+
+                locale: {
+                    placeholder: '正确的邮箱地址，回复将能得到邮件通知。', 
+                    sofa: ''
+                },
+            });
+            
+        }
+        window.addEventListener('DOMContentLoaded', loadWaline);
+    </script>
+
+
+
+    
+    
+    
+    </div>
+
+
+     
+</div>
+
+
+
+                    
+                    
+                    <div class="footer">
+    
+        <span> 
+             
+
+            
+                
+
+            
+        </span>
+    
+</div>
+<!--这是指一条线往下的内容-->
+<div class="footer-last">
+    
+            <span>去吧！在认清生活的真相后去热爱生活!</span>
+            
+                <span class="footer-last-span-right"><i>本站由<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/index.html">Hexo</a>驱动｜使用<a target="_blank" rel="noopener" href="https://github.com/HiNinoJay/hexo-theme-A4">Hexo-theme-A4</a>主题</i></span>
+            
+    
+</div>
+
+
+    
+<link rel="stylesheet" href="/css/a11y-dark.min.css">
+
+    
+<script src="/js/highlight.min.js"></script>
+
+    
+<script src="/js/highlightjs-line-numbers.js"></script>
+
+
+
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+                </div>
+            
+    </body>
+</html>
