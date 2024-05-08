@@ -147,7 +147,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/07/MySql_psd_reset/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/08/MySql_psd_reset/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -161,7 +161,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2024/05/07/MySql_psd_reset/" class="post-title-link" itemprop="url">Untitled</a>
+            <a href="/2024/05/08/MySql_psd_reset/" class="post-title-link" itemprop="url">MySQL密码重置</a>
         </h2>
 
         <div class="post-meta">
@@ -171,7 +171,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2024-05-07 18:33:29" itemprop="dateCreated datePublished" datetime="2024-05-07T18:33:29+08:00">2024-05-07</time>
+              <time title="Created: 2024-05-08 08:35:15" itemprop="dateCreated datePublished" datetime="2024-05-08T08:35:15+08:00">2024-05-08</time>
             </span>
 
           
@@ -185,8 +185,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <hr>
-<h2 id="title-在安装Mysql时没有设置root密码或遗忘Mysql的root密码时，该怎么办？"><a href="#title-在安装Mysql时没有设置root密码或遗忘Mysql的root密码时，该怎么办？" class="headerlink" title="title: 在安装Mysql时没有设置root密码或遗忘Mysql的root密码时，该怎么办？"></a>title: 在安装Mysql时没有设置root密码或遗忘Mysql的root密码时，该怎么办？</h2><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在Ubuntu22.04系统中，使用命令 <code>sudo apt update</code> 和 <code>sudo apt install mysql-server</code> 可以成功安装MySQL数据库。但是随之而来有一个问题：    </p>
+          <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在Ubuntu22.04系统中，使用命令 <code>sudo apt update</code> 和 <code>sudo apt install mysql-server</code> 可以成功安装MySQL数据库。但是随之而来有一个问题：    </p>
 <p>在安装的过程中，我并没有设置密码，使用命令 <code>sudo systemctl start mysql</code>和 <code>mysql -u root -p</code>后，无论输入什么密码，都无法正常登录。     </p>
 <p>通过询问通义千文以及查阅多方资料，通过以下方案可以成功设置root密码。且经过尝试，如果遗忘了root密码，该方案也可以帮助重新设置其密码。</p>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="停止MySQL服务"><a href="#停止MySQL服务" class="headerlink" title="停止MySQL服务"></a>停止MySQL服务</h3><p>为了后续操作，我们需要首先停止正在运行的MySQL服务。</p>
